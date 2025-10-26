@@ -390,7 +390,7 @@ app.post("/whatsapp/send", async (req, res) => {
     // Formatar número corretamente para WhatsApp
     let formattedPhone = phone.replace(/\D/g, "");
 
-    // Verificar se o número existe no WhatsApp antes de enviarr
+    // Verificar se o número existe no WhatsApp antes de enviar
     console.log(`📞 [SEND] Número original: ${phone}`);
     console.log(`📞 [SEND] Número formatado: ${formattedPhone}`);
 
