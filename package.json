@@ -1,0 +1,21 @@
+{
+  "name": "whatsapp-baileys-server",
+  "version": "1.0.0",
+  "description": "Servidor Node.js para integração WhatsApp usando Baileys, hospedado no Railway.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Fagner04/whatsapp-baileys-server.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Fagner04/whatsapp-baileys-server/issues"
+  },
+  "homepage": "https://github.com/Fagner04/whatsapp-baileys-server#readme"
+}
