@@ -554,7 +554,7 @@ setInterval(async () => {
       }
     }
   }
-}, 15000); // A cada 15 segundos
+}, 15000); // A cada 15 segundoss
 
 app.get("/debug", (req, res) => {
   const sessionStates = [];
