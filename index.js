@@ -9,6 +9,7 @@ const QRCode = require("qrcode");
 const P = require("pino");
 const fs = require("fs");
 const path = require("path");
+const fetch = require("node-fetch");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -188,6 +189,9 @@ async function initWhatsApp(sessionId) {
 
     sock.ev.on("creds.update", saveCreds);
 
+    // Configurar handler de mensagens para o bot
+    setupMessageHandler(sock, sessionId);
+
     const session = {
       sock,
       getQR: () => qrCode,
@@ -358,6 +362,69 @@ app.post("/whatsapp/disconnect", async (req, res) => {
     });
   }
 });
+
+// Handler de mensagens recebidas - para processar menus do bot
+async function setupMessageHandler(sock, sessionId) {
+  sock.ev.on("messages.upsert", async ({ messages }) => {
+    for (const msg of messages) {
+      // Ignorar mensagens do próprio bot
+      if (msg.key.fromMe) continue;
+
+      const messageText =
+        msg.message?.conversation ||
+        msg.message?.extendedTextMessage?.text ||
+        "";
+      const remoteJid = msg.key.remoteJid;
+
+      console.log(
+        `📨 [BOT] Mensagem recebida de ${remoteJid}: "${messageText}"`
+      );
+
+      // Enviar TODAS as mensagens para o bot-handler processar
+      // O bot-handler decidirá se deve responder baseado nos trigger_keywords configurados
+      if (messageText && messageText.trim()) {
+        try {
+          // Chamar edge function para buscar menus configurados
+          const response = await fetch(
+            "https://qeevcauhornyqrfeevwc.supabase.co/functions/v1/bot-handler",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization:
+                  "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFlZXZjYXVob3JueXFyZmVldndjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAxNDg3MzAsImV4cCI6MjA3NTcyNDczMH0.UJ9-w6i3lROn8NRgeG6T1KWIR1FyKmjVGh8TEEBvglc",
+              },
+              body: JSON.stringify({
+                sessionId,
+                message: messageText,
+                from: remoteJid,
+              }),
+            }
+          );
+
+          if (response.ok) {
+            const data = await response.json();
+            if (data.success && data.reply) {
+              await sock.sendMessage(remoteJid, { text: data.reply });
+              console.log(`✅ [BOT] Menu enviado para ${remoteJid}`);
+            } else {
+              console.log(
+                `ℹ️ [BOT] Nenhum menu correspondente para: "${messageText}"`
+              );
+            }
+          } else {
+            console.error(
+              `❌ [BOT] Erro HTTP ${response.status}:`,
+              await response.text()
+            );
+          }
+        } catch (error) {
+          console.error("❌ [BOT] Erro ao processar mensagem:", error);
+        }
+      }
+    }
+  });
+}
 
 app.post("/whatsapp/send", async (req, res) => {
   try {
