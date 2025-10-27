@@ -9,7 +9,7 @@ const QRCode = require("qrcode");
 const P = require("pino");
 const fs = require("fs");
 const path = require("path");
-const fetch = require("node-fetch");
+// fetch é nativo no Node.js v18+, não precisa importar
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -554,7 +554,7 @@ setInterval(async () => {
       }
     }
   }
-}, 15000); // A cada 15 segundoss
+}, 15000); // A cada 15 segundos
 
 app.get("/debug", (req, res) => {
   const sessionStates = [];
