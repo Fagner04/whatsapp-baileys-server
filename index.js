@@ -4,7 +4,7 @@ const QRCode = require('qrcode');
 const P = require('pino');
 const fs = require('fs');
 const path = require('path');
-const fetch = require('node-fetch');
+// Node.js 18+ já tem fetch nativo, não precisa importar node-fetch
 
 const app = express();
 const PORT = process.env.PORT || 3000;
